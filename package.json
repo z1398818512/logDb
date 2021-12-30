@@ -1,0 +1,18 @@
+{
+  "name": "kdzs-logdb",
+  "version": "0.0.1",
+  "description": "快递助手 前端日志持久化",
+  "main": "index.js",
+  "scripts": {
+    "build":"webpack --config webpack.config.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dexie": "^3.2.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1"
+  }
+}
