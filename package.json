@@ -1,10 +1,11 @@
 {
-  "name": "kdzs-logdb",
-  "version": "0.0.1",
+  "name": "@kdzs/loggerdb",
+  "version": "1.0.0",
   "description": "快递助手 前端日志持久化",
   "main": "index.js",
   "scripts": {
-    "build":"webpack --config webpack.config.js"
+    "build":"webpack --config webpack.config.js",
+    "pub": "npm publish --registry http://npmjs.kuaidizs.cn/"
   },
   "author": "",
   "license": "ISC",
