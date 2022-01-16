@@ -5141,26 +5141,33 @@ class logDb  extends Dexie$1 {
             {label: '已使用内存', props: 'usedJSHeapSize'},
         ];
         this.expirationTime = (expirationTime || 2) * 24 * 3600 * 1000; // 默认保留近2天的日志
-        this.version(1).stores({
-            logger: '++id, timeStamp,time,loggerInfo',
+        this.version(2).stores({
+            logger: '++id, timeStamp,time',
         });
         this.logger = this.table('logger');
         this.isEmit = isEmit || true;
-        this.updateDatabase().then();
+        this.updateDatabase()
     }
     async updateDatabase() {
-        const list = await this.getLogger(0, new Date(Date.now() - this.expirationTime).getTime());
-        this.logger.bulkDelete(list.map(log => log.id)) ;// 批量删除
+         this.getFilterDateLogger(0, new Date(Date.now() - this.expirationTime).getTime()).delete()
     }
 
-    // 获取详细日志
-    async  getLogger(start = 0, end = Date.now()) {
-        return  this.logger.where('timeStamp').between(start, end, true, true).toArray();
+    // 筛选范围日期内的数据
+      getFilterDateLogger(start = 0, end = Date.now()) {
+        return  this.logger.where('timeStamp').between(start, end, true, true)
     }
 
     // 获取日期为维度的所有数据
-    async get(date){
-        const itemList = await this.getLogger() || [];
+    async get(dateString){
+        let itemList;
+        if(typeof dateString === 'string'){
+            const start = new Date(dateString+' 00:00:00').getTime() || undefined;
+            const end = new Date(dateString+' 23:59:59').getTime() || undefined;
+            itemList  = await this.getFilterDateLogger(start,end).toArray() || [];
+        }else{
+            itemList = await this.getFilterDateLogger().toArray() || [];
+        }
+        
         const dateMap = {};
         itemList.forEach(item=>{
             const date =  item.time.split(' ')[0];
@@ -5175,9 +5182,10 @@ class logDb  extends Dexie$1 {
             });
             resultData[key] = str;
         });
-        if(typeof date === 'string'){
-            console.info(resultData[date]);
-            return resultData[date];
+
+        if(typeof dateString === 'string'){
+            console.info(resultData[dateString]);
+            return resultData[dateString];
         }else {
             console.info(resultData);
             return resultData;
