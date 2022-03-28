@@ -34,9 +34,13 @@ npm i @kdzs/loggerdb -save
 |serveUrl|远程的socket.io的url|string|非必传|2.0+|
 
 ### 3.API
-|方法|说明|参数|版本|
+ * logDb.log
+作用： 将传参作为日志存储起来。 
+传参： 与console.log一致。    当参数数量>1时，若arguments[0]类型为string且少于20字符时，会将arguments[0]作为错误类型存储。
+
+ * logDb.getDate
+作用： 返回以日期为维度的所有日志（可以在控制台调用返回日志，适合数据量不大的用户）
+传参： 
+|参数|说明|类型|默认值|
 |  ----  | ----  | ----  | ----  |
-|log| 日志存储，传参数量>=1时，arguments[0]类型为string且少于20时，会将该参数作为类型存储 | console.log一致 ||
-|get| 获取时间段内的所有数据 | start,end ||
-|1111|
-|get| 获取时间段内的所有数据 | start,end ||
+|dateString(参数1）|传入指定日期字符如"2022-03-28",不传则会返回所有日期的数据|string|undefined|非必传|
