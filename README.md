@@ -28,11 +28,7 @@ npm i @kdzs/loggerdb -save
 |参数|说明|类型|默认值|版本|
 |  ----  | ----  | ----  | ----  | ----  |
 |expirationTime|保存日志的天数|number|2||
-
 |isEmit|是否在控制台打印日志|bool|true||
-
 |roomId|使用在线展示页需要的id|string|非必传|2.0+|
-
 |consoleReplace|使用console的同时也会记录日志，  该选项为true时，isEmit会置为FALSE|bool|false|2.0+|
-
 |serveUrl|远程的socket.io的url|string|非必传|2.0+|
