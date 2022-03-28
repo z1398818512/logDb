@@ -32,3 +32,9 @@ npm i @kdzs/loggerdb -save
 |roomId|使用在线展示页需要的id|string|非必传|2.0+|
 |consoleReplace|使用console的同时也会记录日志，  该选项为true时，isEmit会置为FALSE|bool|false|2.0+|
 |serveUrl|远程的socket.io的url|string|非必传|2.0+|
+
+### 3.API
+|方法|说明|参数|版本|
+|  ----  | ----  | ----  | ----  |
+|log| 日志存储，传参数量>=1时，arguments[0]类型为string且少于20时，会将该参数作为类型存储 | console.log一致 ||
+|get| 获取时间段内的所有数据 | 参数1： start 【日期字符串|日期对象|时间戳】开始时间，不传则从最初始开始查、 end  【日期字符串|日期对象|时间戳】结束时间，不传则截止到最后一条 ||
