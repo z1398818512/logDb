@@ -35,12 +35,17 @@ npm i @kdzs/loggerdb -save
 
 ### 3.API
  * logDb.log
+
 作用： 将传参作为日志存储起来。 
+
 传参： 与console.log一致。    当参数数量>1时，若arguments[0]类型为string且少于20字符时，会将arguments[0]作为错误类型存储。
 
  * logDb.getDate
+
 作用： 返回以日期为维度的所有日志（可以在控制台调用返回日志，适合数据量不大的用户）
+
 传参： 
+
 |参数|说明|类型|默认值|
 |  ----  | ----  | ----  | ----  |
 |dateString(参数1）|传入指定日期字符如"2022-03-28",不传则会返回所有日期的数据|string|undefined|非必传|
