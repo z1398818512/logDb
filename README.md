@@ -41,7 +41,7 @@ npm i @kdzs/loggerdb -save
 ### 3.API
  ####  * logDb.log
 
-作用： 将传参作为日志存储起来。 
+说明： 将传参作为日志存储起来。 
 
 可用版本： 1.0+
 
@@ -49,7 +49,7 @@ npm i @kdzs/loggerdb -save
 
  ####  * logDb.getDate
 
-作用： 返回以日期为维度的所有日志（可以在控制台调用返回日志，适合数据量不大时使用）
+说明： 返回以日期为维度的所有日志（可以在控制台调用返回日志，适合数据量不大时使用）
 
 传参： (`dateString`)
 
@@ -59,7 +59,7 @@ npm i @kdzs/loggerdb -save
 
 ####  * logDb.get
 
-作用： 获取时间段内的所有数据 （可以在控制台调用返回日志，当数据过多时会导致控制台卡死时，需要缩小时间范围降低数据量）
+说明： 获取时间段内的所有数据 （可以在控制台调用返回日志，当数据过多时会导致控制台卡死时，需要缩小时间范围降低数据量）
 
 可用版本： 1.0+
 
@@ -72,7 +72,10 @@ npm i @kdzs/loggerdb -save
 
 ####  * logDb.openOnline
 
-作用： 启用在线可视化页面,url在控制台中可以看到
+说明： 启用在线可视化页面,控制台会打印url地址
+
+* cltr+F12 快捷键启用
+* cltr+F11 快捷键启用， url地址将通过alert输出
 
 可用版本： 2.0+
 
@@ -85,7 +88,7 @@ npm i @kdzs/loggerdb -save
 
 #### * logDb.errorRegister（待开发）
 
-作用： 错误登记，  传入的错误信息将会收集整理上传到服务器中
+说明： 错误登记，  传入的错误信息将会收集整理上传到服务器中
 
 可用版本： 2.0+
 
@@ -101,13 +104,13 @@ npm i @kdzs/loggerdb -save
 
 #### * logDb.record.spark
 
-作用： 触发。 调用该函数后，会将触发时机那段时间的页面操作保存下来
+说明： 触发。 调用该函数后，会将触发时机那段时间的页面操作保存下来
 
 可用版本： 2.0+
 
 #### * logDb.record.stop
 
-作用： 停止录屏
+说明： 停止录屏
 
 <!--
 传参： (`beforeTime`,`afterTime`)
@@ -121,7 +124,7 @@ npm i @kdzs/loggerdb -save
 <!--
 #### * logDb.recordStart与logDb.recordEnd
 
-作用： 两个函数配合使用，   recordStart开始录屏，recordEnd结束录屏，期间的屏幕操作会被保存下来
+说明： 两个函数配合使用，   recordStart开始录屏，recordEnd结束录屏，期间的屏幕操作会被保存下来
 
 可用版本： 2.0+
 
