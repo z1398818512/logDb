@@ -37,9 +37,6 @@ npm i @kdzs/loggerdb -save
 
 <!-- |consoleReplace|使用console来记录日志，  该选项为true时，isEmit会置为false|bool|false|2.0+| -->
 
-作者：CandyBullet
-链接：https://www.imooc.com/article/23400
-来源：慕课网
 
 ### 3.API
  ####  * logDb.log
@@ -75,7 +72,7 @@ npm i @kdzs/loggerdb -save
 
 ####  * logDb.openOnline
 
-作用： 启用在线可视化页面
+作用： 启用在线可视化页面,url在控制台中可以看到
 
 可用版本： 2.0+
 
@@ -85,9 +82,8 @@ npm i @kdzs/loggerdb -save
 |  ----  | ----  | ----  | ----  |
 |serveUrl|服务器的soket.io地址|string|可不传|
 
-/---------------------------------------------- 待开发的API  ----------------------------------------------/
 
-#### * logDb.errorRegister
+#### * logDb.errorRegister（待开发）
 
 作用： 错误登记，  传入的错误信息将会收集整理上传到服务器中
 
@@ -99,6 +95,39 @@ npm i @kdzs/loggerdb -save
 |  ----  | ----  | ----  | ----  |
 |errInfo|错误的信息，具体参数参考下表|object|必传|
 
+#### record 录屏相关API
+
+在openRecord为true时才能使用
+
+#### * logDb.record.spark
+
+作用： 触发。 调用该函数后，会将触发时机那段时间的页面操作保存下来
+
+可用版本： 2.0+
+
+#### * logDb.record.stop
+
+作用： 停止录屏
+
+<!--
+传参： (`beforeTime`,`afterTime`)
+
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|beforeTime|触发函数前的录制时间|number|10|
+|afterTime|触发函数后的录制时间|number|2|
+
+-->
+<!--
+#### * logDb.recordStart与logDb.recordEnd
+
+作用： 两个函数配合使用，   recordStart开始录屏，recordEnd结束录屏，期间的屏幕操作会被保存下来
+
+可用版本： 2.0+
+
+传参：没有参数
+-->
+
 ##### errInfo
 
 |参数|说明|类型|默认值|
@@ -108,25 +137,3 @@ npm i @kdzs/loggerdb -save
 |line|错误的具体行|string|非必传|
 |sourceMap|sourceMap文件|类型待确认|非必传|
 
-#### 录屏api， 仅在openRecord属性为true时才生效
-
-#### * logDb.recordSpark
-
-作用： 触发录屏，调用该函数后，会将触发的时机前后一段时间页面操作保存下来
-
-可用版本： 2.0+
-
-传参： (`beforeTime`,`afterTime`)
-
-|参数|说明|类型|默认值|
-|  ----  | ----  | ----  | ----  |
-|beforeTime|触发函数前的录制时间|number|10|
-|afterTime|触发函数后的录制时间|number|2|
-
-#### * logDb.recordStart与logDb.recordEnd
-
-作用： 两个函数配合使用，   recordStart开始录屏，recordEnd结束录屏，期间的屏幕操作会被保存下来
-
-可用版本： 2.0+
-
-传参：没有参数
