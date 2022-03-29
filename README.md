@@ -32,12 +32,14 @@ npm i @kdzs/loggerdb -save
 |isEmit|是否在控制台打印日志|bool|true||
 |roomId|使用在线展示页需要的id|string|非必传|2.0+|
 |consoleReplace|使用console的同时也会记录日志，  该选项为true时，isEmit会置为FALSE|bool|false|2.0+|
-|serveUrl|远程的socket.io的url|string|非必传|2.0+|
+|serveUrl|服务器的socket.io的地址|string|非必传|2.0+|
 
 ### 3.API
  * logDb.log
 
 作用： 将传参作为日志存储起来。 
+
+可用版本： 1.0+
 
 传参： 与console.log一致。    当参数数量>1时，若arguments[0]类型为string且少于20字符时，会将arguments[0]作为错误类型存储。
 
@@ -45,7 +47,7 @@ npm i @kdzs/loggerdb -save
 
 作用： 返回以日期为维度的所有日志（可以在控制台调用返回日志，适合数据量不大时使用）
 
-传参： [`dateString`]
+传参： (`dateString`)
 
 |参数|说明|类型|默认值|
 |  ----  | ----  | ----  | ----  |
@@ -55,9 +57,23 @@ npm i @kdzs/loggerdb -save
 
 作用： 获取时间段内的所有数据
 
-传参：不传则获取所有数据，可传：[`start,end`]    
+可用版本： 1.0+
+
+传参：不传则获取所有数据，可传：(`start,end`)    
 
 |参数|说明|类型|默认值|
 |  ----  | ----  | ----  | ----  |
 |start|开始时间，不传则从最初始开始查|日期字符串\日期对象\时间戳|undefined|
 |end|结束时间，不传则截止到最后一条|日期字符串\日期对象\时间戳|undefined|
+
+* logDb.openOnline
+
+作用： 启用在线可视化页面
+
+可用版本： 2.0+
+
+传参： (`serveUrl`)
+
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|serveUrl|服务器的soket.io地址|string|可不传|
