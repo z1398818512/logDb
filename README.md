@@ -24,7 +24,7 @@ npm i @kdzs/loggerdb -save
   import kdzs_logdb from '@kdzs/loggerdb';
   window.logDb = new kdzs_logdb(option);   // 挂载到window上，方便能在控制台中使用
 ```
-#####  * option[object]
+#### option[object]
 
 |参数|说明|类型|默认值|版本|
 |  ----  | ----  | ----  | ----  | ----  |
@@ -35,7 +35,7 @@ npm i @kdzs/loggerdb -save
 |serveUrl|服务器的socket.io的地址|string|非必传|2.0+|
 
 ### 3.API
- #### logDb.log
+ ####  * logDb.log
 
 作用： 将传参作为日志存储起来。 
 
@@ -43,7 +43,7 @@ npm i @kdzs/loggerdb -save
 
 传参： 与console.log一致。    当参数数量>1时，若arguments[0]类型为string且少于20字符时，会将arguments[0]作为错误类型存储。
 
- #### logDb.getDate
+ ####  * logDb.getDate
 
 作用： 返回以日期为维度的所有日志（可以在控制台调用返回日志，适合数据量不大时使用）
 
@@ -53,7 +53,7 @@ npm i @kdzs/loggerdb -save
 |  ----  | ----  | ----  | ----  |
 |dateString|传入指定日期字符如"2022-03-28",不传则会返回所有日期的数据|string\undefined|非必传|
 
-#### logDb.get
+####  * logDb.get
 
 作用： 获取时间段内的所有数据
 
@@ -66,7 +66,7 @@ npm i @kdzs/loggerdb -save
 |start|开始时间，不传则从最初始开始查|日期字符串\日期对象\时间戳|undefined|
 |end|结束时间，不传则截止到最后一条|日期字符串\日期对象\时间戳|undefined|
 
-#### logDb.openOnline
+####  * logDb.openOnline
 
 作用： 启用在线可视化页面
 
