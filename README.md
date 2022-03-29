@@ -24,7 +24,7 @@ npm i @kdzs/loggerdb -save
   import kdzs_logdb from '@kdzs/loggerdb';
   window.logDb = new kdzs_logdb(option);   // 挂载到window上，方便能在控制台中使用
 ```
-#### option[object]
+##### option[object]
 
 |参数|说明|类型|默认值|版本|
 |  ----  | ----  | ----  | ----  | ----  |
@@ -55,7 +55,7 @@ npm i @kdzs/loggerdb -save
 
 ####  * logDb.get
 
-作用： 获取时间段内的所有数据
+作用： 获取时间段内的所有数据 （可以在控制台调用返回日志，当数据过多时会导致控制台卡死时，需要缩小时间范围降低数据量）
 
 可用版本： 1.0+
 
@@ -77,3 +77,28 @@ npm i @kdzs/loggerdb -save
 |参数|说明|类型|默认值|
 |  ----  | ----  | ----  | ----  |
 |serveUrl|服务器的soket.io地址|string|可不传|
+
+/---------------------------------------------- 待开发的API  ----------------------------------------------/
+
+#### * logDb.errorRegister
+
+作用： 错误登记，  传入的错误信息将会收集整理上传到服务器中
+
+可用版本： 2.0+
+
+传参： (`errInfo`)
+
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|errInfo|错误的信息，具体参数参考下表|object|必传|
+
+##### errInfo
+
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|type|错误类型|string|'err'|
+|info|错误内容|string|必传|
+|line|错误的具体行|string|非必传|
+|sourceMap|sourceMap文件|类型待确认|非必传|
+
+
