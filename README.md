@@ -45,7 +45,8 @@ npm i @kdzs/loggerdb -save
 
 可用版本： 1.0+
 
-传参： [`arguments`] 与console.log一致。 最终会将所有传参转成字符串，拼接后保存。  当参数数量>1时，若arguments[0]类型为string且少于20字符时，会将arguments[0]作为错误类型存储。
+传参：没有数量和类型限制。 最终会将所有传参转成字符串，拼接后保存。  
+* 当参数数量>1时，若arguments[0]类型为string且少于20字符时，会将arguments[0]作为错误类型存储。
 
  ####  * logDb.getDate
 
@@ -74,8 +75,8 @@ npm i @kdzs/loggerdb -save
 
 说明： 启用在线可视化页面,控制台会打印url地址
 
-* cltr+F12 快捷键启用
-* cltr+F11 快捷键启用， url地址将通过alert输出
+* `cltr+F12` 快捷键启用
+* `cltr+F11` 快捷键启用， url地址将通过alert输出
 
 可用版本： 2.0+
 
@@ -85,7 +86,22 @@ npm i @kdzs/loggerdb -save
 |  ----  | ----  | ----  | ----  |
 |serveUrl|服务器的soket.io地址|string|可不传|
 
+#### * logDb.errorRegister（待开发）
 
+说明： 错误登记，  传入的错误信息将会收集整理上传到服务器中
+
+可用版本： 2.0+
+
+传参： (`errInfo`)
+
+##### errInfo
+
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|type|错误类型|string|'err'|
+|info|错误内容|string|必传|
+|line|错误的具体行|string|非必传|
+|sourceMap|sourceMap文件|类型待确认|非必传|
 
 
 |参数|说明|类型|默认值|
@@ -94,11 +110,11 @@ npm i @kdzs/loggerdb -save
 
 #### record 录屏相关API
 
-在openRecord为true时才能使用
+注意：在openRecord为true时才生效
 
 #### * logDb.record.spark
 
-说明： 触发。 调用该函数后，会将触发时机那段时间的页面操作保存下来
+说明： 触发保存。 调用该函数后，会将触发时机的那段时间的页面操作保存下来
 
 可用版本： 2.0+
 
@@ -124,20 +140,5 @@ npm i @kdzs/loggerdb -save
 
 传参：没有参数
 -->
-#### * logDb.errorRegister（待开发）
 
-说明： 错误登记，  传入的错误信息将会收集整理上传到服务器中
-
-可用版本： 2.0+
-
-传参： (`errInfo`)
-
-##### errInfo
-
-|参数|说明|类型|默认值|
-|  ----  | ----  | ----  | ----  |
-|type|错误类型|string|'err'|
-|info|错误内容|string|必传|
-|line|错误的具体行|string|非必传|
-|sourceMap|sourceMap文件|类型待确认|非必传|
 
