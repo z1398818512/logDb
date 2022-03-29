@@ -45,7 +45,7 @@ npm i @kdzs/loggerdb -save
 
 可用版本： 1.0+
 
-传参： 与console.log一致。    当参数数量>1时，若arguments[0]类型为string且少于20字符时，会将arguments[0]作为错误类型存储。
+传参： [`arguments`] 与console.log一致。 最终会将所有传参转成字符串，拼接后保存。  当参数数量>1时，若arguments[0]类型为string且少于20字符时，会将arguments[0]作为错误类型存储。
 
  ####  * logDb.getDate
 
