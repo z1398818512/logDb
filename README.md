@@ -24,7 +24,7 @@ npm i @kdzs/loggerdb -save
   import kdzs_logdb from '@kdzs/loggerdb';
   window.logDb = new kdzs_logdb(option);   // 挂载到window上，方便能在控制台中使用
 ```
-##### option[object]
+##### `option`[object]
 
 |参数|说明|类型|默认值|版本|
 |  ----  | ----  | ----  | ----  | ----  |
