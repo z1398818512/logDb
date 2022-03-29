@@ -26,15 +26,14 @@ npm i @kdzs/loggerdb -save
 ```
 ##### `option`[object]
 
-| 参数           | 说明                                                                 | 类型                                                       | 默认值 | 版本  |
-| -------------- | -------------------------------------------------------------------- | ---------------------------------------------------------- | ------ | ----- |
-| expirationTime | 保存日志的天数,超出的历史日志将会被清除                              | number                                                     | 2      |       |
-| isEmit         | 调用logDb.log时是否在控制台打印日志                                  | bool                                                       | true   |       |
-| roomId         | 使用在线可视化页需要的id                                             | string                                                     | 非必传 | 2.0+  |
-| openRecord     | 启用页面录屏，为true时，录屏相关api才能正常使用                      | bool                                                       | false  | 2.0+  |
-| useErrStytem   | 使用报错捕获系统（报错录屏，错误上报）,为true时，openRecord置为false | bool                                                       | false  | 2.0+  |
-| <!--           | consoleReplace                                                       | 使用console来记录日志，  该选项为true时，isEmit会置为false | bool   | false | 2.0+ | --> |
-
+|参数|说明|类型|默认值|版本|
+|  ----  | ----  | ----  | ----  | ----  |
+|expirationTime|保存日志的天数,超出的历史日志将会被清除|number|2||
+|isEmit|调用logDb.log时是否在控制台打印日志|bool|true||
+|roomId|使用在线可视化页需要的id|string|非必传|2.0+|
+|openRecord|启用页面录屏，为true时，录屏相关api才能正常使用|bool|false|2.0+|
+|useErrStytem|使用报错捕获系统（报错录屏，错误上报）,为true时，openRecord置为false|bool|false|2.0+|
+<!-- |consoleReplace|使用console来记录日志，  该选项为true时，isEmit会置为false|bool|false|2.0+| -->
 |serveUrl|服务器的socket.io的地址|string|非必传|2.0+|
 
 
@@ -58,9 +57,9 @@ npm i @kdzs/loggerdb -save
 
 传参： (`dateString`)
 
-| 参数       | 说明                                                      | 类型             | 默认值 |
-| ---------- | --------------------------------------------------------- | ---------------- | ------ |
-| dateString | 传入指定日期字符如"2022-03-28",不传则会返回所有日期的数据 | string\undefined | 非必传 |
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|dateString|传入指定日期字符如"2022-03-28",不传则会返回所有日期的数据|string\undefined|非必传|
 
 ####  * logDb.get
 
@@ -70,10 +69,10 @@ npm i @kdzs/loggerdb -save
 
 传参：不传则获取所有数据，可传：(`start,end`)    
 
-| 参数  | 说明                           | 类型                       | 默认值    |
-| ----- | ------------------------------ | -------------------------- | --------- |
-| start | 开始时间，不传则从最初始开始查 | 日期字符串\日期对象\时间戳 | undefined |
-| end   | 结束时间，不传则截止到最后一条 | 日期字符串\日期对象\时间戳 | undefined |
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|start|开始时间，不传则从最初始开始查|日期字符串\日期对象\时间戳|undefined|
+|end|结束时间，不传则截止到最后一条|日期字符串\日期对象\时间戳|undefined|
 
 ####  * logDb.openOnline
 
@@ -83,9 +82,9 @@ npm i @kdzs/loggerdb -save
 
 传参： (`serveUrl`)
 
-| 参数     | 说明                 | 类型   | 默认值 |
-| -------- | -------------------- | ------ | ------ |
-| serveUrl | 服务器的soket.io地址 | string | 可不传 |
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|serveUrl|服务器的soket.io地址|string|可不传|
 
 /---------------------------------------------- 待开发的API  ----------------------------------------------/
 
@@ -97,18 +96,18 @@ npm i @kdzs/loggerdb -save
 
 传参： (`errInfo`)
 
-| 参数    | 说明                         | 类型   | 默认值 |
-| ------- | ---------------------------- | ------ | ------ |
-| errInfo | 错误的信息，具体参数参考下表 | object | 必传   |
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|errInfo|错误的信息，具体参数参考下表|object|必传|
 
 ##### errInfo
 
-| 参数      | 说明          | 类型       | 默认值 |
-| --------- | ------------- | ---------- | ------ |
-| type      | 错误类型      | string     | 'err'  |
-| info      | 错误内容      | string     | 必传   |
-| line      | 错误的具体行  | string     | 非必传 |
-| sourceMap | sourceMap文件 | 类型待确认 | 非必传 |
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|type|错误类型|string|'err'|
+|info|错误内容|string|必传|
+|line|错误的具体行|string|非必传|
+|sourceMap|sourceMap文件|类型待确认|非必传|
 
 #### 录屏api， 仅在openRecord属性为true时才生效
 
@@ -120,10 +119,10 @@ npm i @kdzs/loggerdb -save
 
 传参： (`beforeTime`,`afterTime`)
 
-| 参数       | 说明                 | 类型   | 默认值 |
-| ---------- | -------------------- | ------ | ------ |
-| beforeTime | 触发函数前的录制时间 | number | 10     |
-| afterTime  | 触发函数后的录制时间 | number | 2      |
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|beforeTime|触发函数前的录制时间|number|10|
+|afterTime|触发函数后的录制时间|number|2|
 
 #### * logDb.recordStart与logDb.recordEnd
 
