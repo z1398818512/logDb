@@ -110,7 +110,7 @@ npm i @kdzs/loggerdb -save
 
 
 
-#### record 录屏相关API
+### record 录屏相关API
 
 注意：在openRecord为true时才生效
 
