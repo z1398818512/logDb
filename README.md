@@ -94,6 +94,10 @@ npm i @kdzs/loggerdb -save
 
 传参： (`errInfo`)
 
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|errInfo|错误的信息，具体参数参考下表|object|必传|
+
 ##### errInfo
 
 |参数|说明|类型|默认值|
@@ -104,9 +108,7 @@ npm i @kdzs/loggerdb -save
 |sourceMap|sourceMap文件|类型待确认|非必传|
 
 
-|参数|说明|类型|默认值|
-|  ----  | ----  | ----  | ----  |
-|errInfo|错误的信息，具体参数参考下表|object|必传|
+
 
 #### record 录屏相关API
 
