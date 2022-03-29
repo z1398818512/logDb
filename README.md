@@ -101,4 +101,23 @@ npm i @kdzs/loggerdb -save
 |line|错误的具体行|string|非必传|
 |sourceMap|sourceMap文件|类型待确认|非必传|
 
+#### * logDb.recordSpark
 
+作用： 触发录屏，调用该函数后，会将触发的时机前后一段时间页面操作保存下来
+
+可用版本： 2.0+
+
+传参： (`beforeTime`,`afterTime`)
+
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|beforeTime|触发函数前的录制时间|number|10|
+|afterTime|触发函数后的录制时间|number|2|
+
+#### * logDb.recordStart与logDb.recordEnd
+
+作用： 两个函数配合使用，   recordStart开始录屏，recordEnd结束录屏，期间的屏幕操作会被保存下来
+
+可用版本： 2.0+
+
+传参：没有参数
