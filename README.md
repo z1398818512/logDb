@@ -86,13 +86,7 @@ npm i @kdzs/loggerdb -save
 |serveUrl|服务器的soket.io地址|string|可不传|
 
 
-#### * logDb.errorRegister（待开发）
 
-说明： 错误登记，  传入的错误信息将会收集整理上传到服务器中
-
-可用版本： 2.0+
-
-传参： (`errInfo`)
 
 |参数|说明|类型|默认值|
 |  ----  | ----  | ----  | ----  |
@@ -130,6 +124,13 @@ npm i @kdzs/loggerdb -save
 
 传参：没有参数
 -->
+#### * logDb.errorRegister（待开发）
+
+说明： 错误登记，  传入的错误信息将会收集整理上传到服务器中
+
+可用版本： 2.0+
+
+传参： (`errInfo`)
 
 ##### errInfo
 
