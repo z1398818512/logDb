@@ -94,14 +94,17 @@ class serve {
 
   closeWs() { }
   async queryData(data = {}) {
-    const { start, end, pageIndex = 1, pageSize = 100, logType } = data
+    const { start, end, pageIndex = 1, pageSize = 100, logType,infoText } = data
     const startIndex = (pageIndex - 1) * pageSize;
     var FilterDateLogger = (0,_model__WEBPACK_IMPORTED_MODULE_1__/* .getFilterDateLogger */ .z)(this.db.logger, start, end).reverse()
 
     // 筛选类型
-    if (logType) {
+    if (logType||infoText) {
       FilterDateLogger = FilterDateLogger.and(firend => {
-        if (firend.logType.toLowerCase().includes(logType.toLowerCase())) {
+        if (logType && firend.logType.toLowerCase().includes(logType.toLowerCase())) {
+          return true
+        }
+        if (infoText && firend.loggerInfo.toLowerCase().includes(infoText.toLowerCase())) {
           return true
         }
       })
@@ -16906,7 +16909,7 @@ class recordClass {
   }
 
   // 触发录屏，调用该函数后，会将触发的时机前后一段时间页面操作保存下来
-  spark = () => {
+  spark() {
     if (!this.isRecord) {
       console.log('logDb内提示：', 'recordSpark执行失败，原因： 未开启录屏')
       return
@@ -16994,8 +16997,9 @@ class lib_logDb extends Dexie$1 {
             databaseName = 'log',
             expirationTime = 2,
             isEmit = true,
-            serveUrl = 'http://127.0.0.1:7001/user',
-            openRecord = false
+            serveUrl = 'http://172.16.30.231:7001/user',
+            openRecord = false,
+            roomId = 1
         } = props;
         if (typeof databaseName !== 'string') {
             throw 'databaseName must be string';
@@ -17018,6 +17022,7 @@ class lib_logDb extends Dexie$1 {
         });
         this.logger = this.table('logger');
         this.isEmit = isEmit;
+        this.room = roomId
         this.serveUrl = serveUrl,
             this.getFilterDateLogger = model/* getFilterDateLogger.bind */.z.bind(this, this.logger)
         this.updateDatabase();
@@ -17026,16 +17031,22 @@ class lib_logDb extends Dexie$1 {
 
         document.addEventListener('keydown',(e)=>{
             // ctrl+F12 快捷开启在线分析页
-            if(e.ctrlKey&&e.keyCode===123){
-                this.openOnline()
-                return
-            }
+            // if(e.ctrlKey&&e.keyCode===123){
+            //     this.openOnline()
+            //     return
+            // }
             // ctrl+F11 快捷开启在线分析页， url以弹窗形式展示
-            if(e.ctrlKey&&e.keyCode===122){
+            if(e.ctrlKey&&(e.keyCode===123||e.keyCode===122)){
                 this.openOnline()
+                const boxHtml = document.createElement('div')
+                    boxHtml.setAttribute('style','position: fixed;height:30px;line-height:30px;top:0;width:100%;background:#fff;z-index:100000;text-align:center')
                 setTimeout(()=>{
-                    alert(this.socket.point)
-                },1000)
+                    boxHtml.innerHTML = this.socket.point
+                    document.body.appendChild(boxHtml)
+                },500)
+                setTimeout(()=>{
+                    boxHtml.remove()
+                },8000)
                 
                 return
             }
@@ -17048,7 +17059,7 @@ class lib_logDb extends Dexie$1 {
 
     /* 启动在线可视化页 */
     openOnline(serveUrl) {
-        this.socket = new serve/* default */.Z({ db: this, room: this.room || 1, serveUrl: serveUrl || this.serveUrl }) // 启动在线分析
+        this.socket = new serve/* default */.Z({ db: this, room: this.room, serveUrl: serveUrl || this.serveUrl }) // 启动在线分析
     }
 
 
