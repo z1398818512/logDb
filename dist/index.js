@@ -130,6 +130,41 @@ class serve {
 
 /***/ }),
 
+/***/ 99:
+/***/ (() => {
+
+Date.prototype.format = function (fmt) {
+  //author: meizz
+  const o = {
+      'M+': this.getMonth() + 1,
+      'd+': this.getDate(),
+      'h+': this.getHours(),
+      'm+': this.getMinutes(),
+      's+': this.getSeconds(),
+      'q+': Math.floor((this.getMonth() + 3) / 3),
+      S: this.getMilliseconds(),
+  };
+  if (/(y+)/.test(fmt)) {
+      fmt = fmt.replace(
+          RegExp.$1,
+          (this.getFullYear() + '').substr(4 - RegExp.$1.length),
+      );
+  }
+  for (const k in o) {
+      if (new RegExp('(' + k + ')').test(fmt)) {
+          fmt = fmt.replace(
+              RegExp.$1,
+              RegExp.$1.length == 1
+                  ? o[k]
+                  : ('00' + o[k]).substr(('' + o[k]).length),
+          );
+      }
+  }
+  return fmt;
+};
+
+/***/ }),
+
 /***/ 906:
 /***/ ((module) => {
 
@@ -11745,6 +11780,8 @@ setDebug(debug, dexieStackFrameFilter);
 
 //# sourceMappingURL=dexie.mjs.map
 
+// EXTERNAL MODULE: ./lib/utils/global.js
+var utils_global = __webpack_require__(99);
 // EXTERNAL MODULE: ./lib/model.js
 var model = __webpack_require__(118);
 // EXTERNAL MODULE: ./lib/serve.js
@@ -16910,6 +16947,11 @@ class recordClass {
 
   // 触发录屏，调用该函数后，会将触发的时机前后一段时间页面操作保存下来
   spark() {
+    const events = this.sparkFun()
+    logDb.log('recordVideo', {recordEvent: events});
+  }
+
+  sparkFun(){
     if (!this.isRecord) {
       console.log('logDb内提示：', 'recordSpark执行失败，原因： 未开启录屏')
       return
@@ -16918,7 +16960,6 @@ class recordClass {
     const len = eventsMatrix.length;
     if (!len) return;
     const events = eventsMatrix[(len - 2) > 0 ? len - 2 : 0].concat(eventsMatrix[len - 1]);
-    logDb.log('recordVideo', events);
     return events
   }
 
@@ -17078,13 +17119,13 @@ class monitor {
     //js异常监控和静态资源加载错误
     initJSError() {
         window.addEventListener('error', (event) => {
-            console.log(event,'=initJSError=')
             let lastEvent = getLastEvent() //获取用户最后一个交互事件
             if (event.target && (event.target.src || event.target.href)) {
                 this.db.errorRegister({info:{
                     kind: 'stability',//监控指标的大类
                     type: 'error',//小类型 这是一个错误
                     errorType: 'resourceError',//资源加载 js或css资源加载错误
+                    typeTxt: 'error \\n 资源加载错误',
                     filename: event.target.src || event.target.href,//哪个文件报错了
                     tagName: event.target.tagName,//SCRIPT 资源加载错误的标签
                     selector: utils_getSelector(event.target) //用户操作了哪个操作的元素
@@ -17094,6 +17135,7 @@ class monitor {
                     kind: "stability",//监控指标的大类
                     type: "error",//小类型 一个错误
                     errorType: "jsError",//JS执行错误
+                    typeTxt: 'error \\n js执行错误',
                     message: event.message,//报错信息
                     filename: event.filename,//哪个文件报错了
                     position: `${event.lineno}行/${event.colno}列`,//报错的行列 lineNo: lineNo || null,
@@ -17101,7 +17143,7 @@ class monitor {
                     lineNo: event.lineno || null,
                     stack: event.error && event.error.stack ? getLines(event.error.stack) : null,
                     selector: lastEvent ? utils_getSelector(lastEvent.path) : '',//用户操作了哪个操作的元素
-                    suorcemap: "suorcemap",
+                    suorcemap: true,
                 }})
             }
         }, true)
@@ -17110,7 +17152,6 @@ class monitor {
     //promise全局错误监控
     initPromiseError() {
         window.addEventListener('unhandledrejection', (event) => {
-            console.log(event,'=event=')
             let lastEvent = getLastEvent();//用户最后一个交互事件
             let message;
             let filename;
@@ -17134,6 +17175,7 @@ class monitor {
                 kind: 'stability',//监控指标的大类
                 type: 'error',//小类型 这是一个错误
                 errorType: 'promiseErroe',//promise错误 
+                typeTxt: 'error \\n promise错误',
                 message,//报错信息
                 filename,//哪个文件报错了
                 position: `${lineNo}行/${columnNo}列`,//报错的行列,当是全局当promise报错是无法拿到行列信息的。
@@ -17141,7 +17183,7 @@ class monitor {
                 columnNo: columnNo,
                 stack,
                 selector: lastEvent ? utils_getSelector(lastEvent.path) : '', //用户操作了哪个操作的元素
-                suorcemap: "suorcemap",
+                suorcemap: true,
             }})
         }, true)
     }
@@ -17152,17 +17194,19 @@ class monitor {
                 kind: "stability",//监控指标的大类
                 type: "error",//小类型 一个错误
                 errorType: "vueError",//Vue执行错误
+                typeTxt: 'error \\n vue内报错',
                 stack: err.stack,
                 message: err.message,
                 selector: vm.$vnode.tag,
                 info: info,
                 filename: '',
-                suorcemap: "suorcemap",
+                suorcemap: true,
             }})
         }
     }
     //性能监控
     initTiming() {
+        return false;   // 这个暂时不处理
         let _this = this 
         let FMP, LCP;
         // 增加一个性能条目的观察者
@@ -17204,6 +17248,7 @@ class monitor {
             }).observe({ type: 'first-input', buffered: true });//'first-input用户第一次交互、点击页面 内容等。
         }
         utils_onload(function () {
+            return false;   // 这个暂时不处理
             //浏览器解析页面性能指标
             setTimeout(() => {
                 const { fetchStart, connectStart, connectEnd, requestStart, responseStart, responseEnd, domLoading, domInteractive, domContentLoadedEventStart, domContentLoadedEventEnd, loadEventStart } = performance.timing;
@@ -17236,6 +17281,7 @@ class monitor {
     }
     //ajax请求监控
     initXHR() {
+        return 
         let _this = this 
         //老的XMLHttpRequest
         let XMLHttpRequest = window.XMLHttpRequest;
@@ -17279,11 +17325,11 @@ class monitor {
                     }})
                 }
                 //请求成功 handler函数是回调函数
-                this.addEventListener('load', handler('load'), false);
+                // this.addEventListener('load', handler('load'), false);
                 //请求失败
-                this.addEventListener('error', handler('error'), false);
+                this.addEventListener('error', handler('error'), false, 'xhr \\n 请求错误');
                 //请求放弃
-                this.addEventListener('abort', handler('abort'), false);
+                // this.addEventListener('abort', handler('abort'), false);
             }
             return oldSend.apply(this, arguments);
         }
@@ -17292,7 +17338,6 @@ class monitor {
     initFetch() {
         let _this = this 
         if ("function" == typeof window.fetch) {
-            console.log('进来了')
             //重新定义 __oFetch__
             let __oFetch__ = window.fetch;
             //在全局添加一个私有fetch
@@ -17300,7 +17345,6 @@ class monitor {
             //重写原来的fetch
             window.fetch = function (t, o) {
                 let params = typeof o === "object" ? o.body : getParameters(t)
-                console.log('进来了2',params)
                 let args = 1 === arguments.length ? [arguments[0]] : Array.apply(null, arguments);
                 //发送时获取当前时间
                 let startTime = Date.now();
@@ -17324,6 +17368,7 @@ class monitor {
                     const { type, status, statusText } = response
                     response.text().then(function (res) {
                         if (response.ok) {
+                            return false;  // 目前仅处理报错的请求
                             _this.db.errorRegister({info:{
                                 kind: 'stability',
                                 type: 'xhrFetch',
@@ -17339,6 +17384,7 @@ class monitor {
                             _this.db.errorRegister({info:{
                                 kind: 'stability',
                                 type: 'xhrFetch',
+                                typeTxt: 'error \\n fetch报错',
                                 eventType: type,//load error abort
                                 pathname: url,//请求地址
                                 status: status + '-' + statusText,//状态码
@@ -17356,6 +17402,7 @@ class monitor {
 }
 
 ;// CONCATENATED MODULE: ./lib/index.js
+
 
 
 
@@ -17400,9 +17447,11 @@ class lib_logDb extends Dexie$1 {
             { label: '最大内存限制', props: 'jsHeapSizeLimit' },
             { label: '可用内存', props: 'totalJSHeapSize' },
             { label: '已使用内存', props: 'usedJSHeapSize' },
+            { label: '录屏数据',props: 'recordEvent'},
+            { label: '详情内容',props: 'infoData'  }
         ];
         this.expirationTime = (expirationTime) * 24 * 3600 * 1000; // 默认保留近2天的日志
-        this.version(3).stores({
+        this.version(4).stores({
             logger: '++id, timeStamp,time',
         });
         this.logger = this.table('logger');
@@ -17411,7 +17460,8 @@ class lib_logDb extends Dexie$1 {
         this.serveUrl = serveUrl,
             this.getFilterDateLogger = model/* getFilterDateLogger.bind */.z.bind(this, this.logger)
         this.updateDatabase();
-        this.record = new lib_record({ logDb: this, openRecord })
+        
+        this.errLoopNum = 0;   // 错误次数，避免死循环
         dbInstrance = this
 
         document.addEventListener('keydown',(e)=>{
@@ -17436,8 +17486,10 @@ class lib_logDb extends Dexie$1 {
                 return
             }
         })
-        console.log('开始1233')
-        const monitor2 =  new monitor({db:this})
+        // 错误拦截上报
+        new monitor({db:this})
+        // 录屏
+        this.record = new lib_record({ logDb: this, openRecord })
     }
     /* 清除指定时长外的日志 */
     async updateDatabase() {
@@ -17540,6 +17592,14 @@ class lib_logDb extends Dexie$1 {
 
     // 添加日志
     log(...data) {
+        let recordEvent = ''
+        let infoData = ''
+        // 特殊数据处理
+        if(data[1]&&typeof data[1] === 'object'&& (data[1].recordEvent || data[1].infoData)){
+            recordEvent = data[1].recordEvent
+            infoData = data[1].infoData
+            data[1] = ''
+        }
         if (this.isEmit) {
             if (!data.length) {
                 console.info('db.log传入为空');
@@ -17549,11 +17609,16 @@ class lib_logDb extends Dexie$1 {
         }
         const timeStamp = Date.now();
         var logType = 'log'
+        
         if (data.length > 1 && typeof data[0] === 'string' && data[0].length < 20) {
             logType = data[0]
             data.splice(0, 1)
         }
 
+        // 避免try中一直存在错误，导致死循环
+        if(data[0] === 'logdb内报错'&&data[1]===2){
+            return false;
+        }
         try {
             data.push('') // 避免data长度为1时， 以下reduce直接略过
             const loggerInfo = data.length ? (data.reduce((str = '', log) => {
@@ -17567,26 +17632,45 @@ class lib_logDb extends Dexie$1 {
                 jsHeapSizeLimit: performance.memory.jsHeapSizeLimit / 1024 / 1024, // 最大内存限制
                 totalJSHeapSize: performance.memory.totalJSHeapSize / 1024 / 1024, // 总内存的大小
                 usedJSHeapSize: performance.memory.usedJSHeapSize / 1024 / 1024, // JS占用内存 如果大于totalJSHeapSize 极大可能内存泄漏
-                loggerInfo
-
+                loggerInfo,
+                recordEvent,
+                infoData
             });
             this.socket && this.socket.sendOnceLog({
                 timeStamp,
                 time: new Date(timeStamp).format('yyyy-MM-dd hh:mm:ss'),
                 loggerInfo
             })
+            if(data[0] === 'logdb内报错'){
+                this.errLoopNum = 0
+            }
         } catch (err) {
+            this.errLoopNum += 1
             if (typeof err === 'object' && err.message) {
-                this.log('err', err.message);
+                this.log('logdb内报错',this.errLoopNum, err.message);
             } else {
-                this.log('err', err);
+                this.log('logdb内报错',this.errLoopNum, err);
             }
 
         }
 
     }
-    errorRegister(...data){
-        console.log(data)
+    errorRegister({info}){
+        const {typeTxt,errorType,suorcemap,filename} = info
+        let logInfo = '',recordEvent = ''
+        if(suorcemap){
+            recordEvent =  this.record.sparkFun()
+        }
+        switch(errorType){
+            case 'resourceError':
+                logInfo = filename;
+                break;
+            default:
+                logInfo = '';
+                break;
+
+        }
+        this.log(typeTxt, {recordEvent,infoData:info}, logInfo)
     }
 }
 
