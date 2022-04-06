@@ -1,6 +1,6 @@
 {
   "name": "@kdzs/loggerdb",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "快递助手 前端日志持久化",
   "main": "index.js",
   "scripts": {
