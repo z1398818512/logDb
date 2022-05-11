@@ -19,7 +19,6 @@ return /******/ (() => { // webpackBootstrap
 /* harmony export */   "z": () => (/* binding */ getFilterDateLogger)
 /* harmony export */ });
 // 筛选范围日期内的数据
-
 const getFilterDateLogger = (db, start = 0, end = Date.now()) => {
     return db.where('timeStamp').between(start, end, true, true);
 }
@@ -71,8 +70,11 @@ class serve {
       socket.on('query', ({ data }) => {
         this.queryData(data)
       })
+      // 开启实时将日志传到远程
       socket.on('openRealLog', ({ data }) => {
-        this.isOpenRealLog = data || true
+        this.isOpenRealLog = data || true;
+        console.log = this.db.log.bind(this.db);
+        console.log('已连接')
       })
       socket.on('handleScirpt', ({ data }) => {
         try {
@@ -86,8 +88,10 @@ class serve {
     });
   }
 
+  // 发送实时日志到远程
   async sendOnceLog(log) {
     if (this.isOpenRealLog) {
+      
       this.socket.emit('sendonCeLog', log);
     }
   }
@@ -17099,13 +17103,13 @@ let monitorInstrance = null
 
 class monitor {
     constructor(props = {}) {
-        const {db} = props
+        const { db } = props
         // 单例模式
         if (monitorInstrance) {
             console.info(monitor)
             return monitorInstrance
         }
-        
+
         this.db = db
         this.initTiming()
         this.initJSError()
@@ -17114,24 +17118,59 @@ class monitor {
         // this.initVueError()
         this.initFetch()
         monitorInstrance = this;
-        
+        this.resourceErrMap = new Map() // 资源加载错误不用实时上传，  整合到一起再传
+
+        window.addEventListener('beforeunload', (e) => {
+            // 发送存储的报错
+            this.resourceErrMap.forEach(item => {
+                this.db.errorRegister(item)
+            })
+        })
+
     }
     //js异常监控和静态资源加载错误
     initJSError() {
         window.addEventListener('error', (event) => {
             let lastEvent = getLastEvent() //获取用户最后一个交互事件
-            if (event.target && (event.target.src || event.target.href)) {
-                this.db.errorRegister({info:{
-                    kind: 'stability',//监控指标的大类
-                    type: 'error',//小类型 这是一个错误
-                    errorType: 'resourceError',//资源加载 js或css资源加载错误
-                    typeTxt: 'error \\n 资源加载错误',
-                    filename: event.target.src || event.target.href,//哪个文件报错了
-                    tagName: event.target.tagName,//SCRIPT 资源加载错误的标签
-                    selector: utils_getSelector(event.target) //用户操作了哪个操作的元素
-                }})
-            } else {
-                this.db.errorRegister({info:{
+            const targetSrc = event.target.src || event.target.href; //哪个文件报错了
+            // 资源报错
+            if (event.target && targetSrc) {
+                const hosts = targetSrc.split('?')[0]
+                const errObj = this.resourceErrMap.get(hosts)
+                if (!errObj) {
+                    this.resourceErrMap.set(hosts, {
+                        info: {
+                            kind: 'stability',//监控指标的大类
+                            type: 'error',//小类型 这是一个错误
+                            errorType: 'resourceError',//资源加载 js或css资源加载错误
+                            typeTxt: 'error \\n 资源加载错误',
+                            filename: targetSrc,
+                            tagName: event.target.tagName,//SCRIPT 资源加载错误的标签
+                            selector: utils_getSelector(event.target), //用户操作了哪个操作的元素
+                            startErrTime: new Date().format('yyyy-MM-dd hh:mm:ss'), // 首次报错时间
+                            errNum: 1, // 报错次数
+                            endErrTime: new Date().format('yyyy-MM-dd hh:mm:ss'), // 最后一次报错时间
+                            urlList: [targetSrc],
+                        }
+                    })
+                } else {
+                    this.resourceErrMap.set(
+                        hosts,
+                        {
+                            info: {
+                                ...errObj.info,
+                                errNum: errObj.info.errNum + 1,
+                                endErrTime: new Date(),
+                                urlList: [...new Set([...errObj.info.urlList, targetSrc])]
+                            }
+                        }
+                    )
+                }
+                return false;
+            }
+            // js报错
+            this.db.errorRegister({
+                info: {
                     kind: "stability",//监控指标的大类
                     type: "error",//小类型 一个错误
                     errorType: "jsError",//JS执行错误
@@ -17144,8 +17183,8 @@ class monitor {
                     stack: event.error && event.error.stack ? getLines(event.error.stack) : null,
                     selector: lastEvent ? utils_getSelector(lastEvent.path) : '',//用户操作了哪个操作的元素
                     suorcemap: true,
-                }})
-            }
+                }
+            })
         }, true)
     }
 
@@ -17171,43 +17210,47 @@ class monitor {
                 }
                 stack = getLines(reason.stack);//堆栈信息
             }
-            this.db.errorRegister({info:{
-                kind: 'stability',//监控指标的大类
-                type: 'error',//小类型 这是一个错误
-                errorType: 'promiseErroe',//promise错误 
-                typeTxt: 'error \\n promise错误',
-                message,//报错信息
-                filename,//哪个文件报错了
-                position: `${lineNo}行/${columnNo}列`,//报错的行列,当是全局当promise报错是无法拿到行列信息的。
-                lineNo: lineNo,
-                columnNo: columnNo,
-                stack,
-                selector: lastEvent ? utils_getSelector(lastEvent.path) : '', //用户操作了哪个操作的元素
-                suorcemap: true,
-            }})
+            this.db.errorRegister({
+                info: {
+                    kind: 'stability',//监控指标的大类
+                    type: 'error',//小类型 这是一个错误
+                    errorType: 'promiseErroe',//promise错误 
+                    typeTxt: 'error \\n promise错误',
+                    message,//报错信息
+                    filename,//哪个文件报错了
+                    position: `${lineNo}行/${columnNo}列`,//报错的行列,当是全局当promise报错是无法拿到行列信息的。
+                    lineNo: lineNo,
+                    columnNo: columnNo,
+                    stack,
+                    selector: lastEvent ? utils_getSelector(lastEvent.path) : '', //用户操作了哪个操作的元素
+                    suorcemap: true,
+                }
+            })
         }, true)
     }
     //vue组件错误监控
     initVueError(Vue) {
         Vue.config.errorHandler = function (err, vm, info) {
-            this.db.errorRegister({info:{
-                kind: "stability",//监控指标的大类
-                type: "error",//小类型 一个错误
-                errorType: "vueError",//Vue执行错误
-                typeTxt: 'error \\n vue内报错',
-                stack: err.stack,
-                message: err.message,
-                selector: vm.$vnode.tag,
-                info: info,
-                filename: '',
-                suorcemap: true,
-            }})
+            this.db.errorRegister({
+                info: {
+                    kind: "stability",//监控指标的大类
+                    type: "error",//小类型 一个错误
+                    errorType: "vueError",//Vue执行错误
+                    typeTxt: 'error \\n vue内报错',
+                    stack: err.stack,
+                    message: err.message,
+                    selector: vm.$vnode.tag,
+                    info: info,
+                    filename: '',
+                    suorcemap: true,
+                }
+            })
         }
     }
     //性能监控
     initTiming() {
         return false;   // 这个暂时不处理
-        let _this = this 
+        let _this = this
         let FMP, LCP;
         // 增加一个性能条目的观察者
         if (PerformanceObserver) {
@@ -17233,14 +17276,16 @@ class monitor {
                     let inputDelay = firstInput.processingStart - firstInput.startTime;
                     let duration = firstInput.duration;//处理的耗时
                     if (inputDelay > 0 || duration > 0) {
-                        this.db.errorRegister({info:{
-                            kind: 'experience',//用户体验指标
-                            type: 'firstInputDelay',//首次输入延迟
-                            inputDelay,//延时的时间
-                            duration,//处理的时间
-                            startTime: firstInput.startTime,
-                            selector: lastEvent ? utils_getSelector(lastEvent.path || lastEvent.target) : ''
-                        }})
+                        this.db.errorRegister({
+                            info: {
+                                kind: 'experience',//用户体验指标
+                                type: 'firstInputDelay',//首次输入延迟
+                                inputDelay,//延时的时间
+                                duration,//处理的时间
+                                startTime: firstInput.startTime,
+                                selector: lastEvent ? utils_getSelector(lastEvent.path || lastEvent.target) : ''
+                            }
+                        })
                     }
 
                 }
@@ -17252,37 +17297,41 @@ class monitor {
             //浏览器解析页面性能指标
             setTimeout(() => {
                 const { fetchStart, connectStart, connectEnd, requestStart, responseStart, responseEnd, domLoading, domInteractive, domContentLoadedEventStart, domContentLoadedEventEnd, loadEventStart } = performance.timing;
-                _this.db.errorRegister({info:{
-                    kind: 'experience',//用户体验指标
-                    type: 'timing',//统计每个阶段的时间
-                    connectTime: connectEnd - connectStart,//连接时间
-                    ttfbTime: responseStart - requestStart,//首字节到达时间
-                    responseTime: responseEnd - responseStart,//响应的读取时间
-                    parseDOMTime: loadEventStart - domLoading,//DOM解析的时间
-                    domContentLoadedTime: domContentLoadedEventEnd - domContentLoadedEventStart,//domContentLoaded事件耗时
-                    timeToInteractive: domInteractive - fetchStart,//首次可交互时间
-                    loadTIme: loadEventStart - fetchStart //完整的加载时间
-                }})
+                _this.db.errorRegister({
+                    info: {
+                        kind: 'experience',//用户体验指标
+                        type: 'timing',//统计每个阶段的时间
+                        connectTime: connectEnd - connectStart,//连接时间
+                        ttfbTime: responseStart - requestStart,//首字节到达时间
+                        responseTime: responseEnd - responseStart,//响应的读取时间
+                        parseDOMTime: loadEventStart - domLoading,//DOM解析的时间
+                        domContentLoadedTime: domContentLoadedEventEnd - domContentLoadedEventStart,//domContentLoaded事件耗时
+                        timeToInteractive: domInteractive - fetchStart,//首次可交互时间
+                        loadTIme: loadEventStart - fetchStart //完整的加载时间
+                    }
+                })
                 //首次绘制，包括了任何用户自定义的背景绘制，它是首先将像素绘制到屏幕的时刻
                 let FP = performance.getEntriesByName('first-paint')[0];
                 //是游览器将第一个DOM渲染到屏幕的时间，可能是文本、图像、SVG等这其实就是白屏时间
                 let FCP = performance.getEntriesByName('first-contentful-paint')[0];
                 //开始发送性能指标
-                _this.db.errorRegister({info:{
-                    kind: 'experience',
-                    type: 'timing',
-                    firstPaint: FP.startTime,//首次绘制
-                    firstContentfulPaint: FCP.startTime,//首次内容绘制
-                    firstMeaningfulPaint: FMP ? FMP.startTime : '',//首次有意义的内容绘制
-                    largestContentfulPaint: LCP.startTime//最大内容绘制
-                }})
+                _this.db.errorRegister({
+                    info: {
+                        kind: 'experience',
+                        type: 'timing',
+                        firstPaint: FP.startTime,//首次绘制
+                        firstContentfulPaint: FCP.startTime,//首次内容绘制
+                        firstMeaningfulPaint: FMP ? FMP.startTime : '',//首次有意义的内容绘制
+                        largestContentfulPaint: LCP.startTime//最大内容绘制
+                    }
+                })
             }, 6000);
         });
     }
     //ajax请求监控
     initXHR() {
-        return 
-        let _this = this 
+        return
+        let _this = this
         //老的XMLHttpRequest
         let XMLHttpRequest = window.XMLHttpRequest;
         //缓存老的open方法
@@ -17313,16 +17362,18 @@ class monitor {
                     // OK Server Error
                     let statusText = this.statusText;
                     //上报
-                    _this.db.errorRegister({info:{
-                        kind: 'stability',
-                        type: 'xhr',
-                        eventType: type,//load error abort
-                        pathname: this.logData.url,//请求地址
-                        status: status + '-' + statusText,//状态码
-                        duration,//持续时间
-                        response: this.response ? JSON.stringify(this.response) : '',//响应体
-                        params: body || ''//请求体
-                    }})
+                    _this.db.errorRegister({
+                        info: {
+                            kind: 'stability',
+                            type: 'xhr',
+                            eventType: type,//load error abort
+                            pathname: this.logData.url,//请求地址
+                            status: status + '-' + statusText,//状态码
+                            duration,//持续时间
+                            response: this.response ? JSON.stringify(this.response) : '',//响应体
+                            params: body || ''//请求体
+                        }
+                    })
                 }
                 //请求成功 handler函数是回调函数
                 // this.addEventListener('load', handler('load'), false);
@@ -17336,7 +17387,7 @@ class monitor {
     }
     //fetch请求监控
     initFetch() {
-        let _this = this 
+        let _this = this
         if ("function" == typeof window.fetch) {
             //重新定义 __oFetch__
             let __oFetch__ = window.fetch;
@@ -17369,29 +17420,33 @@ class monitor {
                     response.text().then(function (res) {
                         if (response.ok) {
                             return false;  // 目前仅处理报错的请求
-                            _this.db.errorRegister({info:{
-                                kind: 'stability',
-                                type: 'xhrFetch',
-                                eventType: type,//load error abort
-                                pathname: url,//请求地址
-                                status: status + '-' + statusText,//状态码
-                                duration,//持续时间
-                                response: res ? JSON.stringify(res) : '',//响应体
-                                params,//请求数据
-                            }})
+                            _this.db.errorRegister({
+                                info: {
+                                    kind: 'stability',
+                                    type: 'xhrFetch',
+                                    eventType: type,//load error abort
+                                    pathname: url,//请求地址
+                                    status: status + '-' + statusText,//状态码
+                                    duration,//持续时间
+                                    response: res ? JSON.stringify(res) : '',//响应体
+                                    params,//请求数据
+                                }
+                            })
                         }
                         else {
-                            _this.db.errorRegister({info:{
-                                kind: 'stability',
-                                type: 'xhrFetch',
-                                typeTxt: 'error \\n fetch报错',
-                                eventType: type,//load error abort
-                                pathname: url,//请求地址
-                                status: status + '-' + statusText,//状态码
-                                duration,//持续时间
-                                response: res ? JSON.stringify(res) : '',//响应体
-                                params,//请求数据
-                            }})
+                            _this.db.errorRegister({
+                                info: {
+                                    kind: 'stability',
+                                    type: 'xhrFetch',
+                                    typeTxt: 'error \\n fetch报错',
+                                    eventType: type,//load error abort
+                                    pathname: url,//请求地址
+                                    status: status + '-' + statusText,//状态码
+                                    duration,//持续时间
+                                    response: res ? JSON.stringify(res) : '',//响应体
+                                    params,//请求数据
+                                }
+                            })
                         }
                     });
                     //return e;
@@ -17431,8 +17486,10 @@ class lib_logDb extends Dexie$1 {
             isEmit = true,
             serveUrl = 'http://172.16.30.231:7001/user',
             openRecord = false,
-            roomId = 1
+            roomId = 1,
+            useErrStytem = false
         } = props;
+        
         if (typeof databaseName !== 'string') {
             throw 'databaseName must be string';
         }
@@ -17447,8 +17504,8 @@ class lib_logDb extends Dexie$1 {
             { label: '最大内存限制', props: 'jsHeapSizeLimit' },
             { label: '可用内存', props: 'totalJSHeapSize' },
             { label: '已使用内存', props: 'usedJSHeapSize' },
-            { label: '录屏数据',props: 'recordEvent'},
-            { label: '详情内容',props: 'infoData'  }
+            { label: '录屏数据', props: 'recordEvent' },
+            { label: '详情内容', props: 'infoData' }
         ];
         this.expirationTime = (expirationTime) * 24 * 3600 * 1000; // 默认保留近2天的日志
         this.version(4).stores({
@@ -17457,39 +17514,42 @@ class lib_logDb extends Dexie$1 {
         this.logger = this.table('logger');
         this.isEmit = isEmit;
         this.room = roomId
-        this.serveUrl = serveUrl,
-            this.getFilterDateLogger = model/* getFilterDateLogger.bind */.z.bind(this, this.logger)
+        this.serveUrl = serveUrl
+        this.getFilterDateLogger = model/* getFilterDateLogger.bind */.z.bind(this, this.logger)
         this.updateDatabase();
-        
+
         this.errLoopNum = 0;   // 错误次数，避免死循环
         dbInstrance = this
 
-        document.addEventListener('keydown',(e)=>{
+        document.addEventListener('keydown', (e) => {
             // ctrl+F12 快捷开启在线分析页
             // if(e.ctrlKey&&e.keyCode===123){
             //     this.openOnline()
             //     return
             // }
             // ctrl+F11 快捷开启在线分析页， url以弹窗形式展示
-            if(e.ctrlKey&&(e.keyCode===123||e.keyCode===122)){
+            if (e.ctrlKey && (e.keyCode === 123 || e.keyCode === 122)) {
                 this.openOnline()
                 const boxHtml = document.createElement('div')
-                    boxHtml.setAttribute('style','position: fixed;height:30px;line-height:30px;top:0;width:100%;background:#fff;z-index:100000;text-align:center')
-                setTimeout(()=>{
+                boxHtml.setAttribute('style', 'position: fixed;height:30px;line-height:30px;top:0;width:100%;background:#fff;z-index:100000;text-align:center')
+                setTimeout(() => {
                     boxHtml.innerHTML = this.socket.point
                     document.body.appendChild(boxHtml)
-                },500)
-                setTimeout(()=>{
+                }, 500)
+                setTimeout(() => {
                     boxHtml.remove()
-                },8000)
-                
+                }, 8000)
+
                 return
             }
         })
-        // 错误拦截上报
-        new monitor({db:this})
         // 录屏
         this.record = new lib_record({ logDb: this, openRecord })
+        if(useErrStytem){
+            // 错误拦截上报
+            new monitor({ db: this })
+            this.record.run()
+       }
     }
     /* 清除指定时长外的日志 */
     async updateDatabase() {
@@ -17594,10 +17654,10 @@ class lib_logDb extends Dexie$1 {
     log(...data) {
         let recordEvent = ''
         let infoData = ''
-        // 特殊数据处理
-        if(data[1]&&typeof data[1] === 'object'&& (data[1].recordEvent || data[1].infoData)){
-            recordEvent = data[1].recordEvent
-            infoData = data[1].infoData
+        // 特殊数据处理。  初衷的log方法是模拟console.log的，所有传入的参数都作为日志进行存储。  但是后面衍生出了更多需求， 就占用[1]里处理特殊数据。
+        if (data[1] && typeof data[1] === 'object' && (data[1].recordEvent || data[1].infoData)) {
+            recordEvent = data[1].recordEvent // 录屏数据
+            infoData = data[1].infoData // 错误拦截详细信息
             data[1] = ''
         }
         if (this.isEmit) {
@@ -17609,14 +17669,15 @@ class lib_logDb extends Dexie$1 {
         }
         const timeStamp = Date.now();
         var logType = 'log'
-        
+
+        // [0]是长度小于20字符的string时，  则作为日志的类型字段的值 
         if (data.length > 1 && typeof data[0] === 'string' && data[0].length < 20) {
             logType = data[0]
             data.splice(0, 1)
         }
 
-        // 避免try中一直存在错误，导致死循环
-        if(data[0] === 'logdb内报错'&&data[1]===2){
+        // 避免下面的try中一直存在错误，导致死循环
+        if (data[0] === 'logdb内报错' && data[1] === 2) {
             return false;
         }
         try {
@@ -17641,36 +17702,39 @@ class lib_logDb extends Dexie$1 {
                 time: new Date(timeStamp).format('yyyy-MM-dd hh:mm:ss'),
                 loggerInfo
             })
-            if(data[0] === 'logdb内报错'){
+            if (data[0] === 'logdb内报错') {
                 this.errLoopNum = 0
             }
         } catch (err) {
             this.errLoopNum += 1
             if (typeof err === 'object' && err.message) {
-                this.log('logdb内报错',this.errLoopNum, err.message);
+                this.log('logdb内报错', this.errLoopNum, err.message);
             } else {
-                this.log('logdb内报错',this.errLoopNum, err);
+                this.log('logdb内报错', this.errLoopNum, err);
             }
 
         }
 
     }
-    errorRegister({info}){
-        const {typeTxt,errorType,suorcemap,filename} = info
-        let logInfo = '',recordEvent = ''
-        if(suorcemap){
-            recordEvent =  this.record.sparkFun()
+    errorRegister({ info }) {
+        const { typeTxt, errorType, suorcemap, filename, message } = info
+        let logInfo = '', recordEvent = ''
+        if (suorcemap) {
+            recordEvent = this.record.sparkFun()
         }
-        switch(errorType){
+        switch (errorType) {
             case 'resourceError':
                 logInfo = filename;
+                break;
+            case 'jsError':
+                logInfo = message;
                 break;
             default:
                 logInfo = '';
                 break;
 
         }
-        this.log(typeTxt, {recordEvent,infoData:info}, logInfo)
+        this.log(typeTxt, { recordEvent, infoData: info }, logInfo)
     }
 }
 
