@@ -36,9 +36,9 @@ npm i @kdzs/loggerdb -save
 |  ----  | ----  | ----  | ----  | ----  |
 |expirationTime|保存日志的天数,超出的历史日志将会被清除|number|2||
 |isEmit|调用logDb.log时是否在控制台打印日志|bool|true||
-|roomId|使用在线可视化页需要的id|string|非必传|2.0+|
+|roomId|使用在线可视化页需要的房间id|string|非必传|2.0+|
 |openRecord|启用页面录屏，为true时，录屏相关api才能正常使用|bool|false|2.0+|
-|useErrStytem|使用报错捕获系统（报错录屏，错误上报）,为true时，openRecord置为false|bool|false|2.0+|
+|useErrStytem|使用报错捕获系统（报错录屏，错误上报）,为true时，openRecord置为true|bool|false|2.0+|
 |serveUrl|服务器的socket.io的地址|string|非必传|2.0+|
 
 <!-- |consoleReplace|使用console来记录日志，  该选项为true时，isEmit会置为false|bool|false|2.0+| -->

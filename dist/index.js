@@ -17484,7 +17484,7 @@ class lib_logDb extends Dexie$1 {
             databaseName = 'log',
             expirationTime = 2,
             isEmit = true,
-            serveUrl = 'http://172.16.30.231:7001/user',
+            serveUrl = 'http://116.62.117.151:7001',
             openRecord = false,
             roomId = 1,
             useErrStytem = false
@@ -17514,7 +17514,8 @@ class lib_logDb extends Dexie$1 {
         this.logger = this.table('logger');
         this.isEmit = isEmit;
         this.room = roomId
-        this.serveUrl = serveUrl
+        this.serveUrl = serveUrl+'/user'
+        debugger
         this.getFilterDateLogger = model/* getFilterDateLogger.bind */.z.bind(this, this.logger)
         this.updateDatabase();
 
@@ -17627,7 +17628,7 @@ class lib_logDb extends Dexie$1 {
 
     }
 
-    // 日志上传
+    // 日志上传，暂时没用
     async upload() {
         const url = 'http://172.16.30.231:7002/logAnalysis/get'
         try {
@@ -17645,13 +17646,18 @@ class lib_logDb extends Dexie$1 {
             if (data.result == 100) {
                 console.info('上传成功')
             }
-        } catch {
+        } catch(err) {
             console.info('上传请求失败')
         }
     }
 
     // 添加日志
     log(...data) {
+        // 避免下面的try中一直存在错误，导致死循环
+        if (data[0] === 'logdb内报错' && data[1] >= 2) {
+            return false;
+        }
+    try {
         let recordEvent = ''
         let infoData = ''
         // 特殊数据处理。  初衷的log方法是模拟console.log的，所有传入的参数都作为日志进行存储。  但是后面衍生出了更多需求， 就占用[1]里处理特殊数据。
@@ -17676,11 +17682,7 @@ class lib_logDb extends Dexie$1 {
             data.splice(0, 1)
         }
 
-        // 避免下面的try中一直存在错误，导致死循环
-        if (data[0] === 'logdb内报错' && data[1] === 2) {
-            return false;
-        }
-        try {
+       
             data.push('') // 避免data长度为1时， 以下reduce直接略过
             const loggerInfo = data.length ? (data.reduce((str = '', log) => {
                 return str = (typeof str === 'string' ? str : JSON.stringify(str)) + ' ' + (typeof log === 'string' ? log : JSON.stringify(log));
