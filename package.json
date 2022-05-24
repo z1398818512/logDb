@@ -1,6 +1,6 @@
 {
-  "name": "@kdzs/loggerdb",
-  "version": "2.0.16",
+  "name": "loggerdb",
+  "version": "2.0.18",
   "description": "快递助手 前端日志持久化",
   "main": "index.js",
   "scripts": {
@@ -18,5 +18,10 @@
   "devDependencies": {
     "webpack": "^5.65.0",
     "webpack-cli": "^4.9.1"
+  },
+  "homepage": "https://github.com/z1398818512/logDb",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/z1398818512/logDb"
   }
 }

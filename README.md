@@ -23,12 +23,12 @@
 ## 使用
 ### 1.安装
 ```
-npm i @kdzs/loggerdb -save
+npm i loggerdb -save
 ```
 ### 2.初始化
 ```
-  import kdzs_logdb from '@kdzs/loggerdb';
-  window.logDb = new kdzs_logdb(option);   // 挂载到window上，方便能在控制台中使用
+  import loggerDb from 'loggerdb';
+  window.logDb = new loggerDb(option);   // 挂载window上，方便能在控制台中使用
 ```
 ##### `option`[object]
 
