@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "pub": "npm publish --registry http://npmjs.kuaidizs.cn/"
+    "pub": "npm publish --registry https://registry.npmjs.org/",
+    "pub-kdzs": "npm publish --registry http://npmjs.kuaidizs.cn/"
   },
   "author": "",
   "license": "ISC",
