@@ -45,7 +45,7 @@ npm i loggerdb -save
 
 
 ### 3.API
- ####  * logDb.log
+ ####  * logDb.log（核心）
 
 说明： 将传参作为日志存储起来。 
 
@@ -53,6 +53,23 @@ npm i loggerdb -save
 
 传参：没有数量和类型限制。 最终会将所有传参转成字符串，拼接后保存。  
 * 当参数数量>1时，若arguments[0]类型为string且少于20字符时，会将arguments[0]作为错误类型存储。
+
+
+####  * logDb.openOnline（核心）
+
+说明： 启用在线可视化页面,控制台会打印url地址
+
+* `cltr+F12` 快捷键启用， url地址将通过通知栏弹出
+<!-- * `cltr+F11` 快捷键启用， url地址将通过alert输出 -->
+
+可用版本： 2.0+
+
+传参： (`serveUrl`)
+
+|参数|说明|类型|默认值|
+|  ----  | ----  | ----  | ----  |
+|serveUrl|服务器的soket.io地址|string|可不传|
+
 
  ####  * logDb.getDate
 
@@ -77,22 +94,9 @@ npm i loggerdb -save
 |start|开始时间，不传则从最初始开始查|日期字符串\日期对象\时间戳|undefined|
 |end|结束时间，不传则截止到最后一条|日期字符串\日期对象\时间戳|undefined|
 
-####  * logDb.openOnline
 
-说明： 启用在线可视化页面,控制台会打印url地址
 
-* `cltr+F12` 快捷键启用， url地址将通过通知栏弹出
-<!-- * `cltr+F11` 快捷键启用， url地址将通过alert输出 -->
-
-可用版本： 2.0+
-
-传参： (`serveUrl`)
-
-|参数|说明|类型|默认值|
-|  ----  | ----  | ----  | ----  |
-|serveUrl|服务器的soket.io地址|string|可不传|
-
-#### * logDb.errorRegister（待开发）
+<!-- #### * logDb.errorRegister
 
 说明： 错误登记，  传入的错误信息将会收集整理上传到服务器中
 
@@ -111,7 +115,7 @@ npm i loggerdb -save
 |type|错误类型|string|'err'|
 |info|错误内容|string|必传|
 |line|错误的具体行|string|非必传|
-|sourceMap|sourceMap文件|类型待确认|非必传|
+|sourceMap|sourceMap文件|类型待确认|非必传| -->
 
 
 
