@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "dexie": "^3.2.0",
+    "pako": "^2.1.0",
     "rrweb": "^1.1.2",
     "socket.io-client": "^2.4.0"
   },
