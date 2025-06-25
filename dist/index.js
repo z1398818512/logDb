@@ -24034,7 +24034,7 @@ class RecordingTask {
 
 
   async stop() {
-    this.recorder?.();
+    this.recorder && this.recorder();
     clearTimeout(this.timer);
     const d =  this.events;
     this.onComplete(d);
