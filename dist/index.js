@@ -24135,8 +24135,15 @@ class loggerDb extends Dexie$1 {
         })
         // 录屏
         this.record = new lib_record({ logDb: this, openRecord })
-        // this.openOnline()
-       
+        if(document.cookie.includes('isOpenOnline=true')){
+            this.connectOnline()
+        }else{
+            this.checkOpenOnline().then((isOpenOnline)=>{
+                if(isOpenOnline){
+                    this.openOnline()
+                }
+            })
+        }
     }
     /* 清除指定时长外的日志 */
     async updateDatabase() {
@@ -24145,9 +24152,15 @@ class loggerDb extends Dexie$1 {
 
     /* 启动在线可视化页 */
     openOnline(serveUrl) {
-        this.socket = new serve/* default */.Z({ db: this, room: this.room, serveUrl: serveUrl || this.serveUrl}) // 启动在线分析
+        this.connectOnline(serveUrl)
+        // 保持链接24小时。
+        const expires = new Date(Date.now() + 86400000).toUTCString();
+        document.cookie = `isOpenOnline=true; expires=${expires}; path=/`;
     }
 
+    connectOnline(serveUrl){
+        this.socket = new serve/* default */.Z({ db: this, room: this.room, serveUrl: serveUrl || this.serveUrl}) // 启动在线分析
+    }
 
     /*获取时间段内的所有数据
     * 参数说明： 
@@ -24349,7 +24362,17 @@ class loggerDb extends Dexie$1 {
         this.branchId = null;
     }
 
-    
+    async checkOpenOnline(){
+        let isOpenOnline = false
+        try{
+            const response = await fetch(this.serveUrl +`/whiteUser/checkOpenOnline?name=${this.room}`);
+            const data = await response.json();
+            isOpenOnline = data.data
+        }catch(err){
+            return false
+        }
+        return isOpenOnline
+    }
 
     
 }
